@@ -47,7 +47,7 @@ flowchart LR
 
 1. **Clone this Repository**
    ```bash
-   git clone https://github.com/thisismohsinsyed/lead-engagement-workflow.git
+   git clone https://github.com/thisismohsinsyed/AI-Agent-Lead-Generation-with-Phone-Calls.git
    ```
 
 2. **Import the Workflow**
