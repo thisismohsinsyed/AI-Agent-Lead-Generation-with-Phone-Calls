@@ -1,0 +1,242 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 9
+            }
+          ]
+        }
+      },
+      "id": "7bb463c7-3d24-4e0c-9557-69824d39282a",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "<REPLACE_WITH_FILE_ID_OR_PATH>",
+        "options": {}
+      },
+      "id": "6fc05534-5a9a-4242-a706-7a4b49870bb9",
+      "name": "Read CSV",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.contacted}}",
+              "operation": "isFalse"
+            }
+          ]
+        }
+      },
+      "id": "b34a1e2f-f695-4303-8c9b-67ccbd54a0a9",
+      "name": "Filter",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -280,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "call",
+        "to": "={{$json.phone}}",
+        "options": {}
+      },
+      "id": "226e0851-5d1a-4511-b59f-059d458bff7e",
+      "name": "Twilio Call",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        0
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": null,
+          "name": "your-twilio-credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "https://openrouter.ai",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "{\"prompt\":\"Su guión en español aquí...\"}"
+      },
+      "id": "00a58bd7-775f-44e6-8464-560523e40ac0",
+      "name": "AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "interested",
+              "value": "={{$json[\"ai_response\"].interested}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "76231d68-4ea9-4b70-bf32-49cccff57783",
+      "name": "Calc Interested",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "calendar": "Primary",
+        "start": "={{$now}}",
+        "end": "={{$now.plus(1, 'hour')}}",
+        "additionalFields": {}
+      },
+      "id": "d72fe595-f7f7-442a-a1e5-308ac03a3e6b",
+      "name": "Google Calendar",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        520,
+        0
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": null,
+          "name": "your-gcal-credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "a493689a-418b-410e-8dc0-a4430d253b53",
+      "name": "Update CSV",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        720,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read CSV": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Twilio Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twilio Call": {
+      "main": [
+        [
+          {
+            "node": "AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI": {
+      "main": [
+        [
+          {
+            "node": "Calc Interested",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calc Interested": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar": {
+      "main": [
+        [
+          {
+            "node": "Update CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "meta": {
+    "instanceId": "e186960ec804682279fce160b4e2bca26852cb232b11c06b6e058df5a4d32fb5"
+  },
+  "tags": []
+}
